@@ -11,10 +11,6 @@ if varPath not in sys.path:
 
 from IPRANLibs import *
 
-
-reload(sys)
-sys.setdefaultencoding('utf8')
-
 def getHosename(child):
 	loginprompt = '[#>]'
 	child.send('\r\n')
@@ -75,9 +71,9 @@ def HW_B(child):
 			listResult.append('Only pT')
 		elif nDPeer >= 1 and nXPeer < 1:
 			listResult.append('Only pT')
-		elif nDPeer < 1 and nMPeer < 2:
+		elif nDPeer < 1 and nMPeer >= 1:
 			listResult.append('Only uT')
-		elif nDPeer < 1 and nXPeer < 2:
+		elif nDPeer < 1 and nXPeer >= 1:
 			listResult.append('Only uT')
 		else:
 			listResult.append('unknown')
@@ -85,16 +81,22 @@ def HW_B(child):
 	return listResult
 	
 def ZTE_B(child):
-	content = []
+	content = ''
 	loginprompt = '[#>]'
 	child.sendline('show isis adjacency')
-	index = child.expect(['[mMore]',loginprompt])
-	while index == 0:
-		content += child.before
-		child.send(' ')
-		index = child.expect(['[mMore]',loginprompt])
-	content = child.before
-	result_isis = content
+	child.expect('show isis adjacency')
+	child.sendline(' ')
+	child.expect(loginprompt)
+	result_isis = child.before
+	
+	# index = child.expect(['[mMore]',loginprompt])
+	# while index == 0:
+	# 	content += child.before
+	# 	child.send(' ')
+	# 	index = child.expect(['[mMore]',loginprompt])
+	# content += child.before
+	#result_isis = content
+	#print(content)
 
 	global listResult
 	listBPeer = re.findall(r'[a-zA-Z0-9\.-]+-B-[a-zA-Z0-9\.-]*(?=\s+)', result_isis)
@@ -134,9 +136,9 @@ def ZTE_B(child):
 			listResult.append('Only pT')
 		elif nDPeer >= 1 and nXPeer < 1:
 			listResult.append('Only pT')
-		elif nDPeer < 1 and nMPeer < 2:
+		elif nDPeer < 1 and nMPeer >= 1:
 			listResult.append('Only uT')
-		elif nDPeer < 1 and nXPeer < 2:
+		elif nDPeer < 1 and nXPeer >= 1:
 			listResult.append('Only uT')
 		else:
 			listResult.append('unknown')
@@ -188,9 +190,9 @@ def Fiber_B(child):
 			listResult.append('Only pT')
 		elif nDPeer >= 1 and nXPeer < 1:
 			listResult.append('Only pT')
-		elif nDPeer < 1 and nMPeer < 2:
+		elif nDPeer < 1 and nMPeer >= 1:
 			listResult.append('Only uT')
-		elif nDPeer < 1 and nXPeer < 2:
+		elif nDPeer < 1 and nXPeer >= 1:
 			listResult.append('Only uT')
 		else:
 			listResult.append('unknown')
@@ -200,73 +202,78 @@ def Fiber_B(child):
 loginprompt = '[#>]'
 
 try:
+
 	loginIp = []
-	conn = MySQLdb.connect(host='192.168.132.130',user='root',passwd='123456Qw!',port=3306)
+	conn = pymysql.connect(host='localhost',user='gdnoc',passwd='123456Qw!',db='ipran',port=3306)
 	cur = conn.cursor()
-	conn.select_db('IPRAN')
 	sql = 'select * from bdcsv'
 	cur.execute(sql)
 	result = cur.fetchall()
 	for row in result:
 		loginIp.append(row[1])
-	#print loginIp
-except MySQLdb.Error,e:
-	print "Mysql Error %d: %s" % (e.args[0], e.args[1])
 
-LoginError = connect.LoginError
-c = connect.Connector('gdcwb','123456Qw!2')
+	c = connect.Connector('gdcwb','123456Qw!2')
+	result = []
 
-result = []
+	resultDict = {}
+	for index, ip in enumerate(loginIp):
+		listResult = []
+		try:
+			child,loginMode = c.connectIPRAN_HWZTE(ip)
 
-resultDict = {}
-for index, ip in enumerate(loginIp):
-	listResult = []
-	try:
-		child , loginMode = c.connectIPRAN(ip)
-		hostname = getHosename(child)
+			if loginMode == '3A':
+				listResult.append('3A')
+			elif loginMode == 'Local':
+				listResult.append('Local')
+			elif loginMode == 'Failed':
+				#listResult.append('Failed')
+				listResult = ['Failed','','','','','','','','']
+				resultDict[ip] = listResult
 
-		if loginMode == '3A':
-			listResult.append('3A')
-		elif loginMode == 'Local':
-			listResult.append('Local')
+			if loginMode == '3A' or loginMode == 'Local':
+				hostname = getHosename(child)
+				listResult.append(hostname)
 
-		listResult.append(hostname)
+				if re.search(r'910|950',hostname):
+					listResult.append('HW-A')
+				elif re.search(r'CX600',hostname):
+					listResult.append('HW-B/D')
+					listResult = HW_B(child)
+				elif re.search(r'6130|6150|6220',hostname):
+					listResult.append('ZTE-A')
+				elif re.search(r'9000',hostname):
+					listResult.append('ZTE-B')
+					listResult = ZTE_B(child)
+				elif re.search(r'R835E|R820',hostname):
+					listResult.append('Fiber-A')
+				elif re.search(r'R8000',hostname):
+					listResult.append('Fiber-B')
+					listResult = Fiber_B(child)
+				else:
+					listResult.append('Unknown')
+				resultDict[ip] = listResult
+		except Exception as e:
+			print(e)
+			
+		#except RuntimeError:
+			#print ip + ' telnet login failed, due to TIMEOUT or EOF'
+			#listResult.append('NO')
+		#	listResult = ['No','','','','','','','','']
+			#print listResult
+		#	resultDict[ip] = listResult
+		#except LoginError:
+			#print ip + ' cannot login in'
+			#print 'All Failed'
+			#listResult.append('All Failed')
+		#	listResult = ['All Failed','','','','','','','']
+		#	resultDict[ip] = listResult
+	print(resultDict)
+	for key in resultDict:
+	    cur.execute('update bdcsv set Telnet = "%s",HostName = "%s", DeviceType = "%s", nBPeer = "%s", nDPeer = "%s", nMPeer = "%s", nXPeer = "%s", Error = "%s" where LoginIp = "%s"' % tuple(resultDict[key] + [key]))
+	cur.close()
+	conn.commit()
+	conn.close()
 
-		if re.search(r'910|950',hostname):
-			listResult.append('HW-A')
-		elif re.search(r'CX600',hostname):
-			listResult.append('HW-B/D')
-			listResult = HW_B(child)
-		elif re.search(r'6130|6150|6220',hostname):
-			listResult.append('ZTE-A')
-		elif re.search(r'9000',hostname):
-			listResult.append('ZTE-B')
-			listResult = ZTE_B(child)
-		elif re.search(r'R835E|R820',hostname):
-			listResult.append('Fiber-A')
-		elif re.search(r'R8000',hostname):
-			listResult.append('Fiber-B')
-			listResult = Fiber_B(child)
-		else:
-			listResult.append('Unknown')
+except pymysql.Error as e:
+	print("Mysql Error %d: %s" % (e.args[0], e.args[1]))
 
-		resultDict[ip] = listResult
-		
-	except RuntimeError:
-		print ip + ' telnet login failed, due to TIMEOUT or EOF'
-		#listResult.append('NO')
-		listResult = ['No','','','','','','','','']
-		#print listResult
-		resultDict[ip] = listResult
-	except LoginError:
-		print ip + ' cannot login in'
-		print 'All Failed'
-		#listResult.append('All Failed')
-		listResult = ['All Failed','','','','','','','']
-		resultDict[ip] = listResult
-print resultDict
-for key in resultDict:
-    cur.execute('update bdcsv set Telnet = "%s",HostName = "%s", DeviceType = "%s", nBPeer = "%s", nDPeer = "%s", nMPeer = "%s", nXPeer = "%s", Error = "%s" where LoginIp = "%s"' % tuple(resultDict[key] + [key]))
-cur.close()
-conn.commit()
-conn.close()
