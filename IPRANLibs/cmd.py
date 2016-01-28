@@ -8,7 +8,7 @@ class cmd(object):
 	def __init__(self):
 		pass
 
-	def cmd_show_HWZTE(self,commond,more,stop,timeout=3):
+	def cmd_show_HWZTE(child,commond,more,stop,timeout=3):
 		self.child.sendline(commond)
 		show_result = ''
 		index = self.child.expect([commond,pexpect.TIMEOUT])

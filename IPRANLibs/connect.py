@@ -149,9 +149,9 @@ class Connector(object):
 
 	def connectIPRAN_HWZTE(self,strLoginIp):
 		loginprompt = '[#>]'
-		child = pexpect.spawnu('telnet %s' % strLoginIp)
+		child = pexpect.spawn('telnet %s' % strLoginIp)
 		child.logfile_read = sys.stdout
-		index = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
+		index = child.expect(['[Uu]sername', pexpect.EOF, pexpect.TIMEOUT])
 		if index == 1 or index == 2:
 			loginMode = 'Failed'
 			return chlid,loginMode

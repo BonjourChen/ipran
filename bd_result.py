@@ -33,6 +33,8 @@ def HW_B(child):
 	child.expect(loginprompt)
 	result_isis = child.before
 
+	# result_isis = cmd.cmd_show_HWZTE(child,'dis isis peer','More','>')
+
 	global listResult
 	listBPeer = re.findall(r'[a-zA-Z0-9\.-]+-B-[a-zA-Z0-9\.-]*(?=\s+)', result_isis)
 	listDPeer = re.findall(r'[a-zA-Z0-9\.-]+-D-[a-zA-Z0-9\.-]*(?=\s+)', result_isis)
@@ -89,14 +91,6 @@ def ZTE_B(child):
 	child.expect(loginprompt)
 	result_isis = child.before
 	
-	# index = child.expect(['[mMore]',loginprompt])
-	# while index == 0:
-	# 	content += child.before
-	# 	child.send(' ')
-	# 	index = child.expect(['[mMore]',loginprompt])
-	# content += child.before
-	#result_isis = content
-	#print(content)
 
 	global listResult
 	listBPeer = re.findall(r'[a-zA-Z0-9\.-]+-B-[a-zA-Z0-9\.-]*(?=\s+)', result_isis)
@@ -220,6 +214,7 @@ try:
 		listResult = []
 		try:
 			child,loginMode = c.connectIPRAN_HWZTE(ip)
+			
 
 			if loginMode == '3A':
 				listResult.append('3A')
