@@ -179,8 +179,54 @@ def Fiber_B(child):
 			listResult.append('unknown')
 	return listResult
 
-try:
+def bd_result(ip,resultDict):
+	global listResult
+	listResult = []
+	try:
+		c = connect.Connector('gdcwb','123456Qw!2')
+		child, loginMode = c.connectIPRAN(ip)
+		if loginMode == '3A':
+			listResult.append('3A')
+		elif loginMode == 'Local':
+			listResult.append('Local')
+		elif loginMode == 'Failed':
+			listResult = ['Failed','','','','','','','']
+			resultDict[ip] = listResult
+		elif loginMode == 'No':
+			listResult = ['No','','','','','','','']
+			resultDict[ip] = listResult
 
+		if loginMode == '3A' or loginMode == 'Local':
+			hostname = getHosename(child)
+			listResult.append(hostname)
+			print(hostname)
+			if re.search(r'910|950',hostname):
+				listResult.append('HW-A')
+			elif re.search(r'CX600',hostname):
+				listResult.append('HW-B/D')
+				listResult = HW_B(child)
+			elif re.search(r'6130|6150|6220',hostname):
+				listResult.append('ZTE-A')
+			elif re.search(r'9000',hostname):
+				listResult.append('ZTE-B/D')
+				listResult = ZTE_B(child)
+			elif re.search(r'R835E|R820',hostname):
+				listResult.append('Fiber-A')
+			elif re.search(r'R8000',hostname):
+				listResult.append('Fiber-B/D')
+				listResult = Fiber_B(child)
+			else:
+				listResult.append('Unknown')
+			resultDict[ip] = listResult
+			print(resultDict[ip])
+		elif loginMode == 'Failed' or loginMode == 'No':
+			print(ip + ' Login Failed')
+			print(resultDict[ip])
+	except Exception as e:
+			print(e)
+
+
+try:
 	loginIp = []
 	conn = pymysql.connect(host='localhost',user='gdnoc',passwd='123456Qw!',db='ipran',port=3306)
 	cur = conn.cursor()
@@ -189,58 +235,14 @@ try:
 	result = cur.fetchall()
 	for row in result:
 		loginIp.append(row[1])
-
-	c = connect.Connector('gdcwb','123456Qw!2')
-	result = []
-
 	resultDict = {}
+
 	for index, ip in enumerate(loginIp):
-		listResult = []
-		try:
-			child,loginMode = c.connectIPRAN(ip)
-		
-			if loginMode == '3A':
-				listResult.append('3A')
-			elif loginMode == 'Local':
-				listResult.append('Local')
-			elif loginMode == 'All Failed':
-				listResult = ['All Failed','','','','','','','']
-				resultDict[ip] = listResult
-			elif loginMode == 'No':
-				listResult = ['No','','','','','','','']
-				resultDict[ip] = listResult
-				
+		#bd_result(ip,resultDict)
+		t = threading.Thread(target = bd_result, args = (ip,resultDict,))
+		t.start()
 
-			if loginMode == '3A' or loginMode == 'Local':
-				hostname = getHosename(child)
-				listResult.append(hostname)
-				print(hostname)
 
-				if re.search(r'910|950',hostname):
-					listResult.append('HW-A')
-				elif re.search(r'CX600',hostname):
-					listResult.append('HW-B/D')
-					listResult = HW_B(child)
-				elif re.search(r'6130|6150|6220',hostname):
-					listResult.append('ZTE-A')
-				elif re.search(r'9000',hostname):
-					listResult.append('ZTE-B/D')
-					listResult = ZTE_B(child)
-				elif re.search(r'R835E|R820',hostname):
-					listResult.append('Fiber-A')
-				elif re.search(r'R8000',hostname):
-					listResult.append('Fiber-B/D')
-					listResult = Fiber_B(child)
-				else:
-					listResult.append('Unknown')
-				resultDict[ip] = listResult
-				print(resultDict[ip])
-			elif loginMode == 'Failed' or loginMode == 'No':
-				print(ip + ' Login Failed')
-				print(resultDict[ip])
-		except Exception as e:
-			print(e)
-			
 except pymysql.Error as e:
 	print("Mysql Error %d: %s" % (e.args[0], e.args[1]))
 

@@ -66,7 +66,7 @@ class Connector(object):
 								child = pexpect.spawn('telnet %s' %strLoginIp)
 								index_3 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
 								if index_3 == 1 or index_3 == 2:
-									loginMode = 'Failed'
+									loginMode = 'No'
 									return child,loginMode
 								child.send('noc189\r')
 								index_3 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
@@ -78,5 +78,5 @@ class Connector(object):
 									return child,loginMode
 								else:
 									child.close(force=True)
-									loginMode = 'All Failed'
+									loginMode = 'Failed'
 									return child,loginMode
