@@ -14,186 +14,49 @@ class Connector(object):
 			self.Username = tupleInfo[0]
 			self.Password = tupleInfo[1]
 		else:
-			self.Username = raw_input("username:")
-			self.Password = raw_input("password:")
+			self.Username = input("username:")
+			self.Password = input("password:")
 
-	# def connectIPRAN(self,strLoginIp):
-
-	# 	loginprompt = '[#>]'
-	# 	child = pexpect.spawn('telnet %s' %strLoginIp)
-	# 	child.logfile_read = sys.stdout
-
-	# 	index = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
-	# 	if index == 1 or index == 2:
-	# 		raise RuntimeError, strLoginIp +' telnet login failed, due to TIMEOUT or EOF'
-	# 	child.sendline(self.Username)
-	# 	index = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
-	# 	if index == 0:
-	# 	# if index == 1 or index == 2:
-	# 	# 	child.send('\r\n')
-	# 	# 	index_p = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
-	# 	# 	child.send(self.Password + '\r\n')
-	# 	# else:
-	# 		child.sendline(self.Password)
-	# 		index = child.expect([loginprompt,'(?i)error','No username'])
-
-	# 		if index == 0: 
-	# 			loginInfo = child.before
-	# 			# hostname = re.search(r'(?<=\<)[a-zA-Z0-9\.-]*',loginInfo).group()
-	# 			loginMode = '3A'
-	# 			return child,loginMode
-	# 		elif index == 1 or index ==2:
-	# 			index_1 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
-	# 			if index_1 == 1 or index_1 == 2:
-	# 				#print ip +' telnet login failed, due to TIMEOUT or EOF'
-	# 				raise RuntimeError, strLoginIp +' telnet login failed, due to TIMEOUT or EOF'
-	# 			child.sendline('noc189')
-	# 			index_1 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
-	# 			child.sendline('1qaz#EDC')
-	# 			index_1 = child.expect([loginprompt,'(?i)error','No username'])
-
-	# 			if index_1 == 0:
-	# 				loginInfo = child.before
-	# 				# hostname = re.search(r'(?<=\<)[a-zA-Z0-9\.-]*',loginInfo).group()
-	# 				loginMode = 'Local'
-	# 				return child,loginMode
-	# 			elif index_1 == 1 or index ==2:
-	# 				index_2 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
-	# 				if index_2 == 1 or index_2 == 2:
-	# 					#print ip +' telnet login failed, due to TIMEOUT or EOF'
-	# 					raise RuntimeError, strLoginIp +' telnet login failed, due to TIMEOUT or EOF'
-	# 				child.sendline('noc189')
-	# 				index_2 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
-	# 				child.sendline('ipranv587!')
-	# 				index_2 = child.expect([loginprompt,'(?i)error','No username'])
-	# 				if index_2 == 0:
-	# 					loginInfo = child.before
-	# 					# hostname = re.search(r'(?<=\<)[a-zA-Z0-9\.-]*',loginInfo).group()
-	# 					loginMode = 'Local'
-	# 					return child,loginMode
-	# 				else:
-	# 					child.close(force=True)
-	# 					child = pexpect.spawn('telnet %s' %strLoginIp)
-	# 					child.logfile_read = sys.stdout
-	# 					index_3 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
-	# 					if index_3 == 1 or index_3 == 2:
-	# 						raise RuntimeError, strLoginIp +' telnet login failed, due to TIMEOUT or EOF'
-	# 					child.sendline('noc189')
-	# 					index_3 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
-	# 					child.sendline('ipran4Ggood')
-	# 					index_3 = child.expect([loginprompt,'(?i)error','No username'])
-	# 					if index_3 == 0:
-	# 						loginInfo = child.before
-	# 						# hostname = re.search(r'(?<=\<)[a-zA-Z0-9\.-]*',loginInfo).group()
-	# 						loginMode = 'Local'
-	# 						return child,loginMode
-	# 					else:
-	# 						child.close(force=True)
-	# 						#print ip +' telnet login failed, due to TIMEOUT or EOF'
-	# 						raise LoginError
-
-	# 	else:
-	# 		child.send('\r\n')
-	# 		index_p = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
-	# 		child.send(self.Password + '\r\n')
-	# 		index = child.expect([loginprompt,'(?i)error','No username'])
-
-	# 		if index == 0: 
-	# 			loginInfo = child.before
-	# 			loginMode = '3A'
-	# 			return child,loginMode
-	# 		elif index == 1 or index ==2:
-	# 			index_1 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
-	# 			if index_1 == 1 or index_1 == 2:
-	# 				raise RuntimeError, strLoginIp +' telnet login failed, due to TIMEOUT or EOF'
-	# 			child.send('noc189\r\n')
-	# 			index_1 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
-	# 			child.sendline('1qaz#EDC\r\n')
-	# 			index_1 = child.expect([loginprompt,'(?i)error','No username'])
-
-	# 			if index_1 == 0:
-	# 				loginInfo = child.before
-	# 				loginMode = 'Local'
-	# 				return child,loginMode
-	# 			elif index_1 == 1 or index ==2:
-	# 				index_2 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
-	# 				if index_2 == 1 or index_2 == 2:
-	# 					raise RuntimeError, strLoginIp +' telnet login failed, due to TIMEOUT or EOF'
-	# 				child.send('noc189\r\n')
-	# 				index_2 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
-	# 				child.send('ipranv587!\r\n')
-	# 				index_2 = child.expect([loginprompt,'(?i)error','No username'])
-	# 				if index_2 == 0:
-	# 					loginInfo = child.before
-	# 					loginMode = 'Local'
-	# 					return child,loginMode
-	# 				else:
-	# 					child.close(force=True)
-	# 					child = pexpect.spawn('telnet %s' %strLoginIp)
-	# 					child.logfile_read = sys.stdout
-	# 					index_3 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
-	# 					if index_3 == 1 or index_3 == 2:
-	# 						raise RuntimeError, strLoginIp +' telnet login failed, due to TIMEOUT or EOF'
-	# 					child.send('noc189\r\n')
-	# 					index_3 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
-	# 					child.send('ipran4Ggood\r\n')
-	# 					index_3 = child.expect([loginprompt,'(?i)error','No username'])
-	# 					if index_3 == 0:
-	# 						loginInfo = child.before
-	# 						loginMode = 'Local'
-	# 						return child,loginMode
-	# 					else:
-	# 						child.close(force=True)
-	# 						raise LoginError
-
-
-	def connectIPRAN_HWZTE(self,strLoginIp):
+	def connectIPRAN(self,strLoginIp):
 		loginprompt = '[#>]'
 		child = pexpect.spawn('telnet %s' % strLoginIp)
-		child.logfile_read = sys.stdout
 		index = child.expect(['[Uu]sername', pexpect.EOF, pexpect.TIMEOUT])
 		if index == 1 or index == 2:
-			loginMode = 'Failed'
-			return chlid,loginMode
+			loginMode = 'No'
+			return child,loginMode
 		elif index == 0:
-			#child.sendline(self.Username)
 			child.send(self.Username + '\r')
 			index = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
 			child.send(self.Password + '\r')
-			#child.sendline(self.Password)
-			index = child.expect([loginprompt,'(?i)error','No username'])
+			index = child.expect([loginprompt,'(?i)error','No username', pexpect.EOF, pexpect.TIMEOUT])
 			if index == 0: 
 				loginInfo = child.before
 				loginMode = '3A'
 				return child,loginMode
-			elif index == 1 or index ==2:
+			else:
 				index_1 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
 				if index_1 == 1 or index_1 == 2:
 					loginMode = 'Failed'
-					return chlid,loginMode
+					return child,loginMode
 				elif index_1 ==0:
 					child.send('noc189\r')
-					#child.sendline('noc189')
 					index_1 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
 					child.send('1qaz#EDC\r')
-					#child.sendline('1qaz#EDC')
-					index_1 = child.expect([loginprompt,'(?i)error','No username'])
+					index_1 = child.expect([loginprompt,'(?i)error','No username', pexpect.EOF, pexpect.TIMEOUT])
 					if index_1 == 0:
 						loginInfo = child.before
 						loginMode = 'Local'
 						return child,loginMode
-					elif index_1 == 1 or index_1 ==2:
+					else:
 						index_2 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
 						if index_2 == 1 or index_2 == 2:
 							loginMode = 'Failed'
-							return chlid,loginMode
+							return child,loginMode
 						elif index_2 == 0:
 							child.send('noc189\r')
-							#child.sendline('noc189')
 							index_2 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
 							child.send('ipranv587!\r')
-							#child.sendline('ipranv587!')
-							index_2 = child.expect([loginprompt,'(?i)error','No username'])
+							index_2 = child.expect([loginprompt,'(?i)error','No username', pexpect.EOF, pexpect.TIMEOUT])
 							if index_2 == 0:
 								loginInfo = child.before
 								loginMode = 'Local'
@@ -201,35 +64,19 @@ class Connector(object):
 							else:
 								child.close(force=True)
 								child = pexpect.spawn('telnet %s' %strLoginIp)
-								child.logfile_read = sys.stdout
 								index_3 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
 								if index_3 == 1 or index_3 == 2:
 									loginMode = 'Failed'
 									return child,loginMode
-								#child.sendline('noc189')
 								child.send('noc189\r')
 								index_3 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
 								child.send('ipran4Ggood\r')
-								#child.sendline('ipran4Ggood')
-								index_3 = child.expect([loginprompt,'(?i)error','No username'])
+								index_3 = child.expect([loginprompt,'(?i)error','No username', pexpect.EOF, pexpect.TIMEOUT])
 								if index_3 == 0:
 									loginInfo = child.before
 									loginMode = 'Local'
 									return child,loginMode
 								else:
 									child.close(force=True)
-									loginMode = 'Failed'
-									return chlid,loginMode
-
-	# def connectIPRAN_FIBER(self,strLoginIp):
-	# 	loginprompt = '[#>]'
-	# 	child = pexpect.spawn('telnet %s' %strLoginIp)
-	# 	child.logfile_read = sys.stdout
-
-	# 	index = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT])
-	# 	if index == 1 or index == 2:
-	# 		raise RuntimeError, strLoginIp +' telnet login failed, due to TIMEOUT or EOF'
-	# 	child.send(self.Username + '\r\n')
-	# 	index = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT])
-	# 	if index == 0:
-	# 		pass
+									loginMode = 'All Failed'
+									return child,loginMode

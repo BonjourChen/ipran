@@ -4,23 +4,19 @@ import os
 import sys
 import re
 
-class cmd(object):
-	def __init__(self):
+def cmd_show(child,command,more,stop,timeout=3):
+	child.send(command + '\r')
+	show_result = ''
+	index = child.expect([command,pexpect.TIMEOUT])
+	if index == 0:
+		while True:
+			index_1 = child.expect([more,stop,pexpect.TIMEOUT])
+			show_result += str(child.before, encoding = 'utf-8')
+			if index_1 == 0:
+				child.send(' ')
+			else:
+				break
+	elif index == 1:
 		pass
-
-	def cmd_show_HWZTE(child,commond,more,stop,timeout=3):
-		self.child.sendline(commond)
-		show_result = ''
-		index = self.child.expect([commond,pexpect.TIMEOUT])
-		if index == 0:
-			while True:
-				index_1 = self.child.expect([more,stop,pexpect.TIMEOUT])
-				show_result += child.before
-				if index_1 == 0:
-					self.child.send(' ')
-				else:
-					break
-		elif index == 1:
-			pass
-		return show_result
+	return show_result
 		
