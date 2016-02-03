@@ -27,10 +27,15 @@ class BD_Result_Thread(threading.Thread):
 		while True:
 			try:
 				hostIp = myQueue.get(block = False)
+				if hostIp is None:
+					break
+				if hostIp == '':
+					break
 				listResult = bd_result(hostIp)
 				print (self.name, hostIp)
 				self.lock.acquire()
 				resultDict[hostIp] = listResult
+				#print(listResult)
 				self.lock.release()
 			except queue.Empty:
 				print(self.name + ' finish at %s' %time.ctime())
@@ -59,10 +64,10 @@ def HW_B(child, listResult):
 	nDPeer = len(set(listDPeer))
 	nMPeer = len(set(listMPeer))
 	nXPeer = len(set(listXPeer))
-	listResult.append(nBPeer)
-	listResult.append(nDPeer)
-	listResult.append(nMPeer)
-	listResult.append(nXPeer)
+	listResult.append(str(nBPeer))
+	listResult.append(str(nDPeer))
+	listResult.append(str(nMPeer))
+	listResult.append(str(nXPeer))
 
 	if '-B-' in listResult[1]:
 		if nBPeer < 1 and nDPeer >= 1:
@@ -94,6 +99,8 @@ def HW_B(child, listResult):
 			listResult.append('Only uT')
 		else:
 			listResult.append('unknown')
+	else:
+		listResult.append('unknown')
 	return listResult
 	
 def ZTE_B(child, listResult):
@@ -106,10 +113,10 @@ def ZTE_B(child, listResult):
 	nDPeer = len(set(listDPeer))
 	nMPeer = len(set(listMPeer))
 	nXPeer = len(set(listXPeer))
-	listResult.append(nBPeer)
-	listResult.append(nDPeer)
-	listResult.append(nMPeer)
-	listResult.append(nXPeer)
+	listResult.append(str(nBPeer))
+	listResult.append(str(nDPeer))
+	listResult.append(str(nMPeer))
+	listResult.append(str(nXPeer))
 
 	if '-B-' in listResult[1]:
 		if nBPeer < 1 and nDPeer >= 1:
@@ -153,10 +160,10 @@ def Fiber_B(child, listResult):
 	nDPeer = len(set(listDPeer))
 	nMPeer = len(set(listMPeer))
 	nXPeer = len(set(listXPeer))
-	listResult.append(nBPeer)
-	listResult.append(nDPeer)
-	listResult.append(nMPeer)
-	listResult.append(nXPeer)
+	listResult.append(str(nBPeer))
+	listResult.append(str(nDPeer))
+	listResult.append(str(nMPeer))
+	listResult.append(str(nXPeer))
 
 	if '-B-' in listResult[1]:
 		if nBPeer < 1 and nDPeer >= 1:
@@ -224,12 +231,12 @@ def bd_result(ip):
 				listResult.append('Fiber-B/D')
 				listResult = Fiber_B(child,listResult)
 			else:
-				listResult.append('Unknown')
+				listResult = [loginMode,'Unknown','','','','','','']
 		elif loginMode == 'Failed' or loginMode == 'No':
 			print(ip + ' Login Failed')
 		return listResult
 	except Exception as e:
-			print(ip + str(e))
+			print(e)
 
 try:
 	loginIp = []
@@ -249,7 +256,7 @@ try:
 
 	lock = threading.Lock()
 	threads = []
-	for i in range(20):
+	for i in range(40):
 		threads.append(BD_Result_Thread(lock,"thread-" + str(i)))
 	for t in threads:
 		t.start()
@@ -261,7 +268,8 @@ except pymysql.Error as e:
 
 finally:
 	for key in resultDict:
-	    cur.execute('update bdcsv set Telnet = "%s",HostName = "%s", DeviceType = "%s", nBPeer = "%s", nDPeer = "%s", nMPeer = "%s", nXPeer = "%s", Error = "%s" where LoginIp = "%s"' % tuple(resultDict[key] + [key]))
+		cur.execute('''update bdcsv set Telnet = "%s",HostName = "%s", DeviceType = "%s", nBPeer = "%s", nDPeer = "%s", 
+			nMPeer = "%s", nXPeer = "%s", Error = "%s" where LoginIp = "%s"''' % tuple(resultDict[key] + [key]))
 	cur.close()
 	conn.commit()
 	conn.close()
