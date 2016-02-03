@@ -148,6 +148,8 @@ def ZTE_B(child, listResult):
 			listResult.append('Only uT')
 		else:
 			listResult.append('unknown')
+	else:
+		listResult.append('unknown')
 	return listResult
 
 def Fiber_B(child, listResult):
@@ -195,6 +197,8 @@ def Fiber_B(child, listResult):
 			listResult.append('Only uT')
 		else:
 			listResult.append('unknown')
+	else:
+		listResult.append('unknown')
 	return listResult
 
 def bd_result(ip):
