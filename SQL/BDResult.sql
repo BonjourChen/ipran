@@ -1,5 +1,6 @@
 BEGIN
-DROP TABLE IF EXISTS `bd_result`;
+    -- 创建表格
+    DROP TABLE IF EXISTS `bd_result`;
     CREATE TABLE `bd_result`(
         `bd_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id（递增）',
         `bd_city` VARCHAR(255) NULL DEFAULT NULL COMMENT '地市',

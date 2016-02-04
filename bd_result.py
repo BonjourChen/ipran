@@ -1,4 +1,6 @@
 #!-*-coding:utf-8-*-
+#实现功能：单线程跑BD单上联
+
 import pymysql
 import pexpect
 import os
@@ -231,7 +233,7 @@ try:
 					listResult.append('Fiber-B/D')
 					listResult = Fiber_B(child)
 				else:
-					listResult.append('Unknown')
+					listResult = [loginMode,'Unknown','','','','','','']
 				resultDict[ip] = listResult
 				print(resultDict[ip])
 			elif loginMode == 'Failed' or loginMode == 'No':
