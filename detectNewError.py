@@ -27,7 +27,6 @@ try:
 		if ip not in bdcsv_err_ip:
 			status = 'NEW'
 			cur.execute('insert into bdcsv_err (loginIp, status) VALUES ("%s","%s") '% (ip,status))
-			newIp.append(ip)
 		elif ip in bdcsv_err_ip:
 			cur.execute('select status from bdcsv_err be where be.loginIp = "%s"' % ip)
 			tmpResult = cur.fetchall()
@@ -37,7 +36,6 @@ try:
 				cur.execute('update bdcsv_err set status = "%s" where loginIp = "%s" '% (status,ip))
 			elif status == 'DELETE':
 				status = 'NEW'
-				newIp.append(ip)
 				cur.execute('update bdcsv_err set status = "%s" where loginIp = "%s" '% (status,ip))
 
 	for ip in bdcsv_err_ip:
@@ -47,7 +45,6 @@ try:
 			status = tmpResult[0][0]
 			if status != 'DELETE':
 				status = 'DELETE'
-				deleteIp.append(ip)
 				cur.execute('update bdcsv_err set status = "%s" where loginIp = "%s" '% (status,ip))
 				
 	cur.close()

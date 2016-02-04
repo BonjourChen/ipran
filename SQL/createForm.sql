@@ -90,7 +90,7 @@ BEGIN
         INDEX `ind_tl_ems` (`tl_ems`),
         INDEX `ind_wg_ip` (`wg_ip`),
         INDEX `ind_tl_ip` (`tl_ip`),
-        INDEX `ind_project_status` (`project_status`),
+        INDEX `ind_project_status` (`project_status`)
         -- INDEX `ind_use_status` (`use_status`)
     )
     COLLATE='utf8_general_ci'
@@ -132,23 +132,23 @@ BEGIN
     COLLATE='utf8_general_ci'
     ENGINE=MyISAM;
 
-    DROP TABLE IF EXISTS `bdcsv_previous`;
-    CREATE TABLE `bdcsv_previous`(
-        `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '',
-        `LoginIp` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
-        `Telnet` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
-        `HostName` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
-        `DeviceType` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
-        `nBPeer` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
-        `nDPeer` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
-        `nMPeer` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
-        `nXPeer` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
-        `Error` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
-        PRIMARY KEY(`id`),
-        INDEX `ind_loginIp` (`LoginIp`)
-    )
-    COLLATE='utf8_general_ci'
-    ENGINE=MyISAM;
+    -- DROP TABLE IF EXISTS `bdcsv_previous`;
+    -- CREATE TABLE `bdcsv_previous`(
+    --    `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '',
+    --     `LoginIp` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+    --     `Telnet` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+    --     `HostName` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+    --     `DeviceType` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+    --     `nBPeer` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+    --     `nDPeer` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+    --     `nMPeer` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+    --     `nXPeer` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+    --     `Error` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+    --     PRIMARY KEY(`id`),
+    --         INDEX `ind_loginIp` (`LoginIp`)
+    -- )
+    -- COLLATE='utf8_general_ci'
+    -- ENGINE=MyISAM;
 
     DROP TABLE IF EXISTS `errlist`;
     CREATE TABLE `errlist`(

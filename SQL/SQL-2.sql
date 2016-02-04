@@ -48,11 +48,11 @@ BEGIN
 
     INSERT INTO bdcsv(
         LoginIp)
-    SELECT ib.yw_ip
-    FROM info_b ib
+    SELECT ib.b_yw_ip
+    FROM info_b ib;
 
     INSERT INTO bdcsv(
         LoginIp)
-    SELECT id.yw_ip
-    FROM info_d id
+    SELECT id.d_wg_ip
+    FROM info_d id;
 END
