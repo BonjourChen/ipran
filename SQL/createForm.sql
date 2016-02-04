@@ -1,4 +1,29 @@
 BEGIN
+    DROP TABLE IF EXISTS `info_all`;
+    CREATE TABLE `info_all`(
+        `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT  '设备ID（递增）',
+        `area` VARCHAR(255) NULL DEFAULT NULL COMMENT '区域',
+        `attribute` VARCHAR(255) NULL DEFAULT NULL COMMENT '网元类型',
+        `model` VARCHAR(255) NULL DEFAULT NULL COMMENT '网元型号',
+        `hostname` VARCHAR(255) NULL DEFAULT NULL COMMENT '网元名称',
+        -- `alias` VARCHAR(255) NULL DEFAULT NULL COMMENT '网元别名',
+        `wg_ip` VARCHAR(255) NULL DEFAULT NULL COMMENT '网管IP',
+        `yw_ip` VARCHAR(255) NULL DEFAULT NULL COMMENT '业务IP',
+        -- `loopno` VARCHAR(255) NULL DEFAULT NULL COMMENT '环号',
+        -- `config_status` VARCHAR(255) NULL DEFAULT NULL COMMENT '配置下发状态',
+        `project_status` VARCHAR(255) NULL DEFAULT NULL COMMENT '网元运维状态',
+        `isloop_plan` VARCHAR(255) NULL DEFAULT NULL COMMENT '规划是否成环',
+        `isloop_fact` VARCHAR(255) NULL DEFAULT NULL COMMENT '实际是否成环',
+        -- `lock_status` VARCHAR(255) NULL DEFAULT NULL COMMENT '锁定状态',
+        -- `service_model` VARCHAR(255) NULL DEFAULT NULL COMMENT '业务承载类型',
+        PRIMARY KEY(`id`),
+        INDEX `ind_hostname` (`hostname`),
+        INDEX `ind_wg_ip` (`wg_ip`),
+        INDEX `ind_yw_ip` (`yw_ip`)
+    )
+    COLLATE='utf8_general_ci'
+    ENGINE=MyISAM;
+
     DROP TABLE IF EXISTS `info_b`;
     CREATE TABLE `info_b`(
         `b_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT  'B设备ID（递增）',
@@ -57,8 +82,8 @@ BEGIN
         `wg_ip` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
         `tl_ip` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
         `project_status` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
-        `use_status` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
-        `compare_reason` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+        -- `use_status` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+        -- `compare_reason` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
         PRIMARY KEY(`compare_id`),
         INDEX `ind_compare_result` (`compare_result`),
         INDEX `ind_wg_ems` (`wg_ems`),
@@ -66,7 +91,7 @@ BEGIN
         INDEX `ind_wg_ip` (`wg_ip`),
         INDEX `ind_tl_ip` (`tl_ip`),
         INDEX `ind_project_status` (`project_status`),
-        INDEX `ind_use_status` (`use_status`)
+        -- INDEX `ind_use_status` (`use_status`)
     )
     COLLATE='utf8_general_ci'
     ENGINE=MyISAM;
@@ -136,4 +161,5 @@ BEGIN
     )
     COLLATE='utf8_general_ci'
     ENGINE=MyISAM;
+
 END

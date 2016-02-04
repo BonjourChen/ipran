@@ -27,19 +27,29 @@ try:
 		if ip not in bdcsv_err_ip:
 			status = 'NEW'
 			cur.execute('insert into bdcsv_err (loginIp, status) VALUES ("%s","%s") '% (ip,status))
+			newIp.append(ip)
 		elif ip in bdcsv_err_ip:
 			cur.execute('select status from bdcsv_err be where be.loginIp = "%s"' % ip)
 			tmpResult = cur.fetchall()
-			status = tmpResult[0]
+			status = tmpResult[0][0]
 			if status == 'NEW':
 				status = 'EXISTS'
+				cur.execute('update bdcsv_err set status = "%s" where loginIp = "%s" '% (status,ip))
 			elif status == 'DELETE':
 				status = 'NEW'
-		cur.execute('update bdcsv_err set status = "%s" where loginIp = "%s" '% (status,ip))
+				newIp.append(ip)
+				cur.execute('update bdcsv_err set status = "%s" where loginIp = "%s" '% (status,ip))
+
 	for ip in bdcsv_err_ip:
 		if ip not in errIp:
-			status = 'DELETE'
-		cur.execute('update bdcsv_err set status = "%s" where loginIp = "%s" '% (status,ip))
+			cur.execute('select status from bdcsv_err be where be.loginIp = "%s"' % ip)
+			tmpResult = cur.fetchall()
+			status = tmpResult[0][0]
+			if status != 'DELETE':
+				status = 'DELETE'
+				deleteIp.append(ip)
+				cur.execute('update bdcsv_err set status = "%s" where loginIp = "%s" '% (status,ip))
+				
 	cur.close()
 	conn.commit()
 	conn.close()
