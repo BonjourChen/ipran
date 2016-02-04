@@ -27,9 +27,15 @@ try:
 		if ip not in bdcsv_err_ip:
 			status = 'NEW'
 			cur.execute('insert into bdcsv_err (loginIp, status) VALUES ("%s","%s") '% (ip,status))
-		else:
-			status = 'EXISTS'
-			cur.execute('update bdcsv_err set status = "%s" where loginIp = "%s" '% (status,ip))
+		elif ip in bdcsv_err_ip:
+			cur.execute('select status from bdcsv_err be where be.loginIp = "%s"' % ip)
+			tmpResult = cur.fetchall()
+			status = tmpResult[0]
+			if status == 'NEW':
+				status = 'EXISTS'
+			elif status == 'DELETE':
+				status = 'NEW'
+		cur.execute('update bdcsv_err set status = "%s" where loginIp = "%s" '% (status,ip))
 	for ip in bdcsv_err_ip:
 		if ip not in errIp:
 			status = 'DELETE'
