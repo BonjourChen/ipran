@@ -114,6 +114,18 @@ BEGIN
     COLLATE='utf8_general_ci'
     ENGINE=MyISAM;
 
+    DROP TABLE IF EXISTS `AAAcsv`;
+    CREATE TABLE `AAAcsv`(
+        `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '',
+        `LoginIp` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+        `Telnet` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+        `HostName` VARCHAR(255) NULL DEFAULT NULL COMMENT '',
+        PRIMARY KEY(`id`),
+        INDEX `ind_loginIp` (`LoginIp`)
+    )
+    COLLATE='utf8_general_ci'
+    ENGINE=MyISAM;
+
     DROP TABLE IF EXISTS `bdcsv_err`;
     CREATE TABLE `bdcsv_err`(
         `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '',

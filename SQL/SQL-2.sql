@@ -2,6 +2,7 @@ BEGIN
     -- 先清空表格
     TRUNCATE TABLE info_b;
     TRUNCATE TABLE info_d;
+    TRUNCATE TABLE bdcsv;
 
     -- 将info_all表中的数据分拆出info_b分拆进info_d
     INSERT INTO info_b

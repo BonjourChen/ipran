@@ -23,7 +23,6 @@ class BD_Result_Thread(threading.Thread):
 	def run(self):
 		global myQueue
 		global resultDict
-		#listResult = threading.local()
 		while True:
 			try:
 				hostIp = myQueue.get(block = False)
@@ -79,9 +78,9 @@ def HW_B(child, listResult):
 		elif nBPeer >= 1 and nMPeer >= 1:
 			listResult.append('OK')
 		elif nBPeer >=1 and nDPeer < 1:
-			listResult.append('Ony pT')
+			listResult.append('Only pT')
 		elif nBPeer >=1 and nMPeer < 1:
-			listResult.append('Ony pT')
+			listResult.append('Only pT')
 		else:
 			listResult.append('unknown')
 	elif '-D-' in listResult[1]:
@@ -128,9 +127,9 @@ def ZTE_B(child, listResult):
 		elif nBPeer >= 1 and nMPeer >= 1:
 			listResult.append('OK')
 		elif nBPeer >=1 and nDPeer < 1:
-			listResult.append('Ony pT')
+			listResult.append('Only pT')
 		elif nBPeer >=1 and nMPeer < 1:
-			listResult.append('Ony pT')
+			listResult.append('Only pT')
 		else:
 			listResult.append('unknown')
 	elif '-D-' in listResult[1]:
@@ -175,9 +174,9 @@ def Fiber_B(child, listResult):
 		elif nBPeer >= 1 and nMPeer >= 1:
 			listResult.append('OK')
 		elif nBPeer >=1 and nDPeer < 1:
-			listResult.append('Ony pT')
+			listResult.append('Only pT')
 		elif nBPeer >=1 and nMPeer < 1:
-			listResult.append('Ony pT')
+			listResult.append('Only pT')
 		else:
 			listResult.append('unknown')
 	elif '-D-' in listResult[1]:

@@ -1,1 +1,1 @@
-__all__ = ['connect','cmd']
+__all__ = ['connect','cmd','rw']
