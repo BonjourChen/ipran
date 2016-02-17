@@ -69,9 +69,9 @@ def AAAtest(ip):
 			listResult = ['Failed','']
 		elif loginMode == 'No':
 			listResult = ['No','']
-
 		if loginMode == 'Failed' or loginMode == 'No':
 			print(ip + ' Login Failed')
+		return listResult
 	except Exception as e:
 			print(e)
 

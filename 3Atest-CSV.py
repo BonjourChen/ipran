@@ -70,9 +70,9 @@ def AAAtest(ip):
 			listResult = ['Failed','']
 		elif loginMode == 'No':
 			listResult = ['No','']
-
 		if loginMode == 'Failed' or loginMode == 'No':
 			print(ip + ' Login Failed')
+		return listResult
 	except Exception as e:
 			print(e)
 
@@ -83,10 +83,11 @@ try:
 	for ip in loginIp:
 		myQueue.put(ip)
 
+	resultDict = {}
 	lock = threading.Lock()
 	threads = []
 	for i in range(20):
-		threads.append(BD_Result_Thread(lock,"thread-" + str(i)))
+		threads.append(AAAtest_Thread(lock,"thread-" + str(i)))
 	for t in threads:
 		t.start()
 	for t in threads:
@@ -98,6 +99,7 @@ except Exception as e:
 finally:
 	fieldnames = ['LoginIp','Telnet','HostName']
 	dt = datetime.now()
-	strFileName = str(dt.strftime('%m-%d %H.%M.%s')) + '.csv'
+	strFileName = str(dt.strftime('%m-%d %H.%M')) + '.csv'
 	dictData = [dict(zip(fieldnames, tmp)) for tmp in [[key] + resultDict[key] for key in resultDict]]
+	print(dictData)
 	rw.DictWriteToCsv(strFileName, fieldnames, dictData)

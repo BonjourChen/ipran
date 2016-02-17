@@ -54,3 +54,4 @@ def DictWriteToCsv(strFileName, fieldnames, strData, strFileDir = '.'):
 			writer = csv.DictWriter(csvFile, fieldnames = fieldnames)
 			writer.writeheader()
 			writer.writerows(strData)
+
