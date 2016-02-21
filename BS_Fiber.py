@@ -24,6 +24,7 @@ class BS_Fiber_Thread(threading.Thread):
 	def run(self):
 		global myQueue
 		global listResult
+		global errList
 		while True:
 			try:
 				hostIp = myQueue.get(block = False)
@@ -31,8 +32,12 @@ class BS_Fiber_Thread(threading.Thread):
 					break
 				if hostIp == '':
 					break
+				# result,errHost = BS_Fiber(hostIp)
 				result = BS_Fiber(hostIp)
 				print (self.name, hostIp)
+				# self.lock.acquire()
+				# errList = errList + errHost
+				# self.lock.release()
 				self.lock.acquire()
 				listResult = listResult + result
 				self.lock.release()
@@ -55,6 +60,7 @@ def getHosename(child):
 
 def BS_Fiber(ip):
 	resultList = []
+	# errList = []
 	try:
 		c = connect.Connector('gdcwb','123456Qw!2')
 		child, loginMode = c.connectIPRAN(ip)
@@ -75,8 +81,12 @@ def BS_Fiber(ip):
 						resultDict['BS_MAC'] = smac
 						resultDict['A_IP'] = ip
 						resultList.append(resultDict)
+		elif loginMode == 'No' or loginMode == 'Failed':
+			print(ip + ' cannot login in')
+			# errList.append(ip)
 		return resultList
 	except Exception as e:
+			print(ip + ' error!!')
 			print(e)
 
 try:
@@ -86,6 +96,7 @@ try:
 		myQueue.put(ip)
 
 	listResult = []
+	# errList = []
 	lock = threading.Lock()
 	threads = []
 	for i in range(40):
@@ -103,3 +114,5 @@ finally:
 	dt = datetime.now()
 	strFileName = str(dt.strftime('%m-%d %H.%M')) + '.csv'
 	rw.DictWriteToCsv(strFileName, fieldnames, listResult)
+	# for ip in errList:
+	# 	print(ip)

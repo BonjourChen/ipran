@@ -15,7 +15,7 @@ if varPath not in sys.path:
 from IPRANLibs import *
 resultList = []
 g = []
-ip = '4.112.224.59'
+ip = '4.112.32.218'
 c = connect.Connector('gdcwb','123456Qw!2')
 child, loginMode = c.connectIPRAN(ip)
 result_isis = cmd.cmd_show(child,'show vpws-redundancy arp-cache all','More','>')
