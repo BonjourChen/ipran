@@ -15,15 +15,15 @@ if varPath not in sys.path:
 
 from IPRANLibs import *
 
-class AAAtest_Thread(threading.Thread):
-	"""docstring for AAAtest_Thread"""
+class BS_Fiber_Thread(threading.Thread):
+	"""docstring for BS_Fiber_Thread"""
 	def __init__(self,lock,threadName):
-		super(AAAtest_Thread, self).__init__(name = threadName)
+		super(BS_Fiber_Thread, self).__init__(name = threadName)
 		self.lock = lock
 
 	def run(self):
 		global myQueue
-		global resultDict
+		global listResult
 		while True:
 			try:
 				hostIp = myQueue.get(block = False)
@@ -31,10 +31,10 @@ class AAAtest_Thread(threading.Thread):
 					break
 				if hostIp == '':
 					break
-				listResult = AAAtest(hostIp)
+				result = BS_Fiber(hostIp)
 				print (self.name, hostIp)
 				self.lock.acquire()
-				resultDict[hostIp] = listResult
+				listResult = listResult + result
 				self.lock.release()
 			except queue.Empty:
 				print(self.name + ' finish at %s' %time.ctime())
@@ -53,26 +53,29 @@ def getHosename(child):
 		hostname = str(child.before, encoding = 'utf-8')
 	return hostname
 
-def AAAtest(ip):
-	listResult = []
+def BS_Fiber(ip):
+	resultList = []
 	try:
 		c = connect.Connector('gdcwb','123456Qw!2')
 		child, loginMode = c.connectIPRAN(ip)
-		if loginMode == '3A':
-			listResult.append('3A')
-			hostname = getHosename(child)
-			listResult.append(hostname)
-		elif loginMode == 'Local':
-			listResult.append('Local')
-			hostname = getHosename(child)
-			listResult.append(hostname)
-		elif loginMode == 'Failed':
-			listResult = ['Failed','']
-		elif loginMode == 'No':
-			listResult = ['No','']
-		if loginMode == 'Failed' or loginMode == 'No':
-			print(ip + ' Login Failed')
-		return listResult
+		if loginMode == 'Local' or loginMode == '3A':
+			result_bs = cmd.cmd_show(child,'show vpws-redundancy arp-cache all','More','>')
+			totalCount = int(re.search(r'(?<=totalCount is )(\d+)',result_bs).group())
+			if totalCount > 0:
+				tmp = re.sub(r'[\r+\n+\t+]',' ',result_bs)
+				tmpBS = tmp.split('-------------------------------')
+				countBS = len(tmpBS)-1
+				for i in range(countBS):
+					srcip = re.search(r'(?<=src ip )((\d+\.){3}\d+)',tmpBS[i])
+					if srcip:
+						resultDict = {}
+						srcip = srcip.group()
+						smac = re.search(r'(?<=smac )(([a-z0-9]+\.){2}[a-z0-9]+)',tmpBS[i]).group()
+						resultDict['BS_IP'] = srcip
+						resultDict['BS_MAC'] = smac
+						resultDict['A_IP'] = ip
+						resultList.append(resultDict)
+		return resultList
 	except Exception as e:
 			print(e)
 
@@ -82,11 +85,11 @@ try:
 	for ip in loginIp:
 		myQueue.put(ip)
 
-	resultDict = {}
+	listResult = []
 	lock = threading.Lock()
 	threads = []
-	for i in range(20):
-		threads.append(AAAtest_Thread(lock,"thread-" + str(i)))
+	for i in range(40):
+		threads.append(BS_Fiber_Thread(lock,"thread-" + str(i)))
 	for t in threads:
 		t.start()
 	for t in threads:
@@ -96,8 +99,7 @@ except Exception as e:
 	print(e)
 
 finally:
-	fieldnames = ['LoginIp','Telnet','HostName']
+	fieldnames = ['BS_IP','BS_MAC','A_IP']
 	dt = datetime.now()
 	strFileName = str(dt.strftime('%m-%d %H.%M')) + '.csv'
-	dictData = [dict(zip(fieldnames, tmp)) for tmp in [[key] + resultDict[key] for key in resultDict]]
-	rw.DictWriteToCsv(strFileName, fieldnames, dictData)
+	rw.DictWriteToCsv(strFileName, fieldnames, listResult)
