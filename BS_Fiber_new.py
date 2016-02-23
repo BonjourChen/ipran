@@ -93,7 +93,6 @@ def BS_Fiber(ip):
 						L2Port = tmp1[0] + '/' + tmp1[1] + '/' + tmp1[2] + '/' + str(int(tmp1[3])-1) +'.' + BS_VLAN
 						L2Port = re.sub(r'(^[^0-9]+)',r'\1 ',L2Port)
 						result_interface_conf = cmd.cmd_show(child,'show running-config interface '+L2Port,'More','#')
-						#print(result_interface_conf)
 						while True:
 							pw = re.search(r'(?<!description )pw\d+',result_interface_conf)
 							aip = re.search(r'(\d+\.){3}\d+',result_interface_conf)
@@ -185,8 +184,11 @@ def BS_Fiber_Ainfo(info):
 			info['A_PORT'] = ''
 		child.close(force=True)
 	except Exception as e:
-		print(info['A_YW_IP'] + ' ERROR!!')
+		info['A_PORT'] = ''
+		print(info['A_WG_IP'] + ' ERROR!!')
 		print(e)
+	finally:
+		return info
 
 try:
 	loginIp = rw.ReadFromTxt('host.txt')
@@ -197,17 +199,12 @@ try:
 	listResult = []
 	lock = threading.Lock()
 	threads = []
-	for i in range(1):
+	for i in range(3):
 		threads.append(BS_Fiber_Thread(lock,"thread-" + str(i)))
 	for t in threads:
 		t.start()
 	for t in threads:
 		t.join()
-
-	fieldnames = ['BS_IP','BS_MAC','A_WG_IP','A_YW_IP','A_PORT','PW','B_IP']
-	dt = datetime.now()
-	strFileName = str(dt.strftime('%m-%d %H.%M')) + '-pre.csv'
-	rw.DictWriteToCsv(strFileName, fieldnames, listResult)
 
 	BsQueue = queue.Queue()
 	for d in listResult:
@@ -216,7 +213,7 @@ try:
 	listResultFinal = []
 	lock = threading.Lock()
 	threads = []
-	for i in range(1):
+	for i in range(3):
 		threads.append(BS_Fiber_Ainfo_Thread(lock,"thread-" + str(i)))
 	for t in threads:
 		t.start()

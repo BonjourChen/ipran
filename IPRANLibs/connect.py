@@ -58,7 +58,7 @@ class Connector(object):
 							child.send('noc189\r')
 							index_2 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT],30)
 							child.send('ipranv587!\r')
-							index_2 = child.expect([loginprompt,'(?i)error','No username', pexpect.EOF, pexpect.TIMEOUT],30)
+							index_2 = child.expect([loginprompt,'(?i)error','No username','Bad passwords', pexpect.EOF, pexpect.TIMEOUT],30)
 							if index_2 == 0:
 								loginInfo = child.before
 								loginMode = 'Local'
