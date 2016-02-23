@@ -15,22 +15,27 @@ if varPath not in sys.path:
 from IPRANLibs import *
 resultList = []
 g = []
-ip = '4.112.32.218'
+ip = '14.152.242.3'
 c = connect.Connector('gdcwb','123456Qw!2')
 child, loginMode = c.connectIPRAN(ip)
 result_isis = cmd.cmd_show(child,'show vpws-redundancy arp-cache all','More','>')
+#print(result_isis)
+#print(re.findall(r'.*',result_isis))
 b = int(re.search(r'(?<=totalCount is )(\d+)',result_isis).group())
 if b >0:
 	t = re.sub(r'[\r+\n+\t+]',' ',result_isis)
 	q = t.split('-------------------------------')
 	l = len(q)
 	for i in range(l-1):
-		print(i)
+		#print(i)
 		s = re.search(r'(?<=src ip )((\d+\.){3}\d+)',q[i])
 		if s:
 			resultDict = {}
 			s = s.group()
 			a = re.search(r'(?<=smac )(([a-z0-9]+\.){2}[a-z0-9]+)',q[i]).group()
+			b = re.search(r'(?<= Arp cache in )(GE\d+/\d+/\d+\.\d+)',q[i]).group()
+			print(b)
+			resultDict['A_PORT'] = b
 			resultDict['BS_IP'] = s
 			resultDict['BS_MAC'] = a
 			# print(s)
@@ -40,3 +45,5 @@ if b >0:
 			#print(resultList)
 g = g + resultList
 print(g)
+
+

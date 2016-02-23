@@ -32,13 +32,14 @@ class BS_Fiber_Thread(threading.Thread):
 					break
 				if hostIp == '':
 					break
-				# result,errHost = BS_Fiber(hostIp)
-				result = BS_Fiber(hostIp)
+				result,errHost = BS_Fiber(hostIp)
+				# result = BS_Fiber(hostIp)
 				print (self.name, hostIp)
 				# self.lock.acquire()
 				# errList = errList + errHost
 				# self.lock.release()
 				self.lock.acquire()
+				errList = errList + errHost
 				listResult = listResult + result
 				self.lock.release()
 			except queue.Empty:
@@ -60,13 +61,18 @@ def getHosename(child):
 
 def BS_Fiber(ip):
 	resultList = []
-	# errList = []
+	errList = []
 	try:
 		c = connect.Connector('gdcwb','123456Qw!2')
 		child, loginMode = c.connectIPRAN(ip)
 		if loginMode == 'Local' or loginMode == '3A':
 			result_bs = cmd.cmd_show(child,'show vpws-redundancy arp-cache all','More','>')
-			totalCount = int(re.search(r'(?<=totalCount is )(\d+)',result_bs).group())
+			while True:
+				totalCount = re.search(r'(?<=totalCount is )(\d+)',result_bs)
+				if totalCount:
+					totalCount = int(totalCount.group())
+					break
+				# totalCount = int(re.search(r'(?<=totalCount is )(\d+)',result_bs).group())
 			if totalCount > 0:
 				tmp = re.sub(r'[\r+\n+\t+]',' ',result_bs)
 				tmpBS = tmp.split('-------------------------------')
@@ -76,15 +82,25 @@ def BS_Fiber(ip):
 					if srcip:
 						resultDict = {}
 						srcip = srcip.group()
-						smac = re.search(r'(?<=smac )(([a-z0-9]+\.){2}[a-z0-9]+)',tmpBS[i]).group()
+						while True:
+							smac = re.search(r'(?<=smac )(([a-z0-9]+\.){2}[a-z0-9]+)',tmpBS[i])
+							aport = re.search(r'(?<= Arp cache in )(GE\d+/\d+/\d+\.\d+)',tmpBS[i])
+							if smac and aport:
+								smac = smac.group()
+								aport = aport.group()
+								break
+						# smac = re.search(r'(?<=smac )(([a-z0-9]+\.){2}[a-z0-9]+)',tmpBS[i]).group()
+						# aport = re.search(r'(?<= Arp cache in )(GE\d+/\d+/\d+\.\d+)',tmpBS[i]).group()
 						resultDict['BS_IP'] = srcip
 						resultDict['BS_MAC'] = smac
 						resultDict['A_IP'] = ip
+						resultDict['A_PORT'] = aport
 						resultList.append(resultDict)
+			child.close()
 		elif loginMode == 'No' or loginMode == 'Failed':
 			print(ip + ' cannot login in')
-			# errList.append(ip)
-		return resultList
+			errList.append(ip)
+		return resultList,errList
 	except Exception as e:
 			print(ip + ' error!!')
 			print(e)
@@ -96,7 +112,7 @@ try:
 		myQueue.put(ip)
 
 	listResult = []
-	# errList = []
+	errList = []
 	lock = threading.Lock()
 	threads = []
 	for i in range(40):
@@ -110,9 +126,9 @@ except Exception as e:
 	print(e)
 
 finally:
-	fieldnames = ['BS_IP','BS_MAC','A_IP']
+	fieldnames = ['BS_IP','BS_MAC','A_IP','A_PORT']
 	dt = datetime.now()
 	strFileName = str(dt.strftime('%m-%d %H.%M')) + '.csv'
 	rw.DictWriteToCsv(strFileName, fieldnames, listResult)
-	# for ip in errList:
-	# 	print(ip)
+	for ip in errList:
+		print(ip)
