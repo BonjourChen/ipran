@@ -35,7 +35,7 @@ def cmd_telnet(child,ip):
 				loginMode = '3A'
 				return child,loginMode
 			else:
-				index_3 == child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT],30)
+				index_3 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT],30)
 				if index_3 == 0:
 					child.send('noc189'+'\r')
 					index_4 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT],30)

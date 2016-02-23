@@ -15,14 +15,14 @@ if varPath not in sys.path:
 from IPRANLibs import *
 resultList = []
 g = []
-ip = '14.152.242.3'
+ip = '14.152.164.150'
 c = connect.Connector('gdcwb','123456Qw!2')
 child, loginMode = c.connectIPRAN(ip)
 result_cdma_ran =  cmd.cmd_show(child,'show arp all include CDMA-RAN','More','#')
-#print(result_cdma_ran)
+print(result_cdma_ran)
 a = re.findall(r'(virtual.*)/\-',result_cdma_ran)
 #print(a[0])
-#print(a[1])
+print(a[1])
 b = a[1]
 b = re.sub(r'[\s]+',' ',b)
 d = b.split(' ')

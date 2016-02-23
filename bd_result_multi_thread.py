@@ -236,6 +236,7 @@ def bd_result(ip):
 				listResult = Fiber_B(child,listResult)
 			else:
 				listResult = [loginMode,'Unknown','','','','','','']
+			child.close()
 		elif loginMode == 'Failed' or loginMode == 'No':
 			print(ip + ' Login Failed')
 		return listResult

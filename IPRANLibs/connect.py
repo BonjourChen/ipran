@@ -23,6 +23,7 @@ class Connector(object):
 		index = child.expect(['[Uu]sername', pexpect.EOF, pexpect.TIMEOUT],30)
 		if index == 1 or index == 2:
 			loginMode = 'No'
+			child.close(force=True)
 			return child,loginMode
 		elif index == 0:
 			child.send(self.Username + '\r')
@@ -51,6 +52,7 @@ class Connector(object):
 						index_2 = child.expect(["[Uu]sername", pexpect.EOF, pexpect.TIMEOUT],30)
 						if index_2 == 1 or index_2 == 2:
 							loginMode = 'Failed'
+							child.close(force=True)
 							return child,loginMode
 						elif index_2 == 0:
 							child.send('noc189\r')
