@@ -64,32 +64,68 @@ def BS_Fiber(ip):
 			cdma_ran_Line = re.findall(r'(virtual.*)/\-',result_cdma_ran)
 			countBS = len(cdma_ran_Line)
 			if countBS > 1:
-				info = {}
-				for line in range(1,countBS)
-				lineStr = cdma_ran_Line[line]
-				lineStr = re.sub(r'[\s]+',' ',lineStr)
-				BS_info = lineStr.split(' ')
-				virtualPort = BS_info[0]
-				BS_IP = BS_info[1]
-				BS_MAC = BS_info[2]
-				BS_VLAN = BS_info[6]
-				tmp = virtualPort.split('.')
-				tmp1 = tmp[0].split('/')
-				L2Port = tmp1[0] + '/' + tmp1[1] + '/' + tmp1[2] + '/' + str(int(tmp1[3])-1) +'.' + BS_VLAN
-				L2Port = re.sub(r'(^[^0-9]+)',r'\1 ',L2Port)
-				result_interface_conf = cmd.cmd_show(child,'show running-config interface '+L2Port,'More','#')
-				pw = re.search(r'(?<!description )pw\d+',result_interface_conf).group()
-				aip = re.search(r'(\d+\.){3}\d+',result_interface_conf).group()
-
-				info['BS_IP'] = BS_IP
-				info['BS_MAC'] = BS_MAC
-				info['A_YW_IP'] = aip
-				info['PW'] = pw
-				info['B_IP'] = ip
+				for line in range(1,countBS):
+					info = {}
+					lineStr = cdma_ran_Line[line]
+					lineStr = re.sub(r'[\s]+',' ',lineStr)
+					BS_info = lineStr.split(' ')
+					virtualPort = BS_info[0]
+					BS_IP = BS_info[1]
+					BS_MAC = BS_info[2]
+					BS_VLAN = BS_info[6]
+					tmp = virtualPort.split('.')
+					tmp1 = tmp[0].split('/')
+					L2Port = tmp1[0] + '/' + tmp1[1] + '/' + tmp1[2] + '/' + str(int(tmp1[3])-1) +'.' + BS_VLAN
+					L2Port = re.sub(r'(^[^0-9]+)',r'\1 ',L2Port)
+					result_interface_conf = cmd.cmd_show(child,'show running-config interface '+L2Port,'More','#')
+					pw = re.search(r'(?<!description )pw\d+',result_interface_conf)
+					while True:
+						pw = re.search(r'(?<!description )pw\d+',result_interface_conf)
+						aip = re.search(r'(\d+\.){3}\d+',result_interface_conf)
+						if pw and aip:
+							pw = pw.group()
+							aip = aip.group()
+							break
+					#pw = re.search(r'(?<!description )pw\d+',result_interface_conf).group()
+					#aip = re.search(r'(\d+\.){3}\d+',result_interface_conf).group()
+					info['BS_IP'] = BS_IP
+					info['BS_MAC'] = BS_MAC
+					info['A_YW_IP'] = aip
+					info['PW'] = pw
+					info['B_IP'] = ip
+					listBSInfo.append(info)
 			else:
-				pass
+				print(ip + ' has no basic station.')
+			child.close()
+		else:
+			print(ip + ' can\'t login.')
+		return listBSInfo
 	except Exception as e:
 		print(ip + ' ERROR!!')
 		print(e)
-	finally:
-		fieldnames = ['BS_IP','BS_MAC','A_WG_IP','A_YW_IP','A_PORT','PW','B_IP']
+
+try:
+	loginIp = rw.ReadFromTxt('err.txt')
+	myQueue = queue.Queue()
+	for ip in loginIp:
+		myQueue.put(ip)
+
+	listResult = []
+	listErr = []
+	lock = threading.Lock()
+	threads = []
+	for i in range(10):
+		threads.append(BS_Fiber_Thread(lock,"thread-" + str(i)))
+	for t in threads:
+		t.start()
+	for t in threads:
+		t.join()
+
+except Exception as e:
+	print(e)
+
+finally:
+	fieldnames = ['BS_IP','BS_MAC','A_WG_IP','A_YW_IP','A_PORT','PW','B_IP']
+	dt = datetime.now()
+	strFileName = str(dt.strftime('%m-%d %H.%M')) + '.csv'
+	rw.DictWriteToCsv(strFileName, fieldnames, listResult)
