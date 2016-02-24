@@ -238,6 +238,8 @@ try:
 	for t in threads:
 		t.join()
 
+	print('-------------------------------------------------------------')
+
 	BsQueue = queue.Queue()
 	for k,v in resultDict.items():
 		tmpDict = {}
