@@ -23,7 +23,7 @@ class BS_Fiber_Thread(threading.Thread):
 
 	def run(self):
 		global myQueue
-		global listResult
+		global resultDict
 		while True:
 			try:
 				hostIp = myQueue.get(block = False)
@@ -31,15 +31,18 @@ class BS_Fiber_Thread(threading.Thread):
 					break
 				if hostIp == '':
 					break
-				result = BS_Fiber(hostIp)
 				print (self.name, hostIp)
+				result = BS_Fiber(hostIp)
 				self.lock.acquire()
-				listResult = listResult + result
+				for k,v in result.items():
+					if k in resultDict.keys():
+						resultDict[k] += v
+					else:
+						resultDict[k] = v
 				self.lock.release()
 			except queue.Empty:
 				print(self.name + ' finish at %s' %time.ctime())
 				break
-
 
 class BS_Fiber_Ainfo_Thread(threading.Thread):
 	"""docstring for BS_Fiber_Ainfo_Thread"""
@@ -53,19 +56,19 @@ class BS_Fiber_Ainfo_Thread(threading.Thread):
 		while True:
 			try:
 				info = BsQueue.get(block = False)
-				result = BS_Fiber_Ainfo(info)
 				print (self.name, info)
+				result = BS_Fiber_Ainfo(info)
+				# print (self.name, info)
 				self.lock.acquire()
-				listResultFinal.append(result)
+				listResultFinal += result
 				self.lock.release()
 			except queue.Empty:
 				print(self.name + ' finish at %s' %time.ctime())
 				break
 
-
 def BS_Fiber(ip):
 	try:
-		listBSInfo =[]
+		dictInfo = {}
 		c = connect.Connector('gdcwb','123456Qw!2')
 		child,loginMode = c.connectIPRAN(ip)
 		if loginMode == 'Local' or loginMode == '3A':
@@ -81,6 +84,8 @@ def BS_Fiber(ip):
 						pass
 					else:
 						info = {}
+						tmpDictInfo = {}
+						listBSInfo =[]
 						lineStr = cdma_ran_Line[line]
 						lineStr = re.sub(r'[\s]+',' ',lineStr)
 						BS_info = lineStr.split(' ')
@@ -103,20 +108,27 @@ def BS_Fiber(ip):
 						info['BS_IP'] = BS_IP
 						info['BS_MAC'] = BS_MAC
 						info['A_YW_IP'] = aip
+						A_WG_IP = re.sub(r'3([\.\d+]{3})', r'4\1', info['A_YW_IP'])
 						info['PW'] = pw
 						info['B_IP'] = ip
-						print(info)
 						listBSInfo.append(info)
+						tmpDictInfo[A_WG_IP] = listBSInfo
+						print(tmpDictInfo)
+						for k,v in tmpDictInfo.items():
+							if k in dictInfo.keys():
+								dictInfo[k] += v
+							else:
+								dictInfo[k] = v
 			child.close(force=True)
 		else:
 			print(ip + ' can\'t login.')
 			rw.WriteToTxt('errIP.txt',ip+'\r')
 			child.close()
-		return listBSInfo
 	except Exception as e:
 		print(ip + ' ERROR!!')
 		print(e)
-
+	finally:
+		return dictInfo
 
 def BS_Fiber_Ainfo_bak(info):
 	try:
@@ -161,34 +173,54 @@ def BS_Fiber_Ainfo_bak(info):
 		print(info['A_YW_IP'] + ' ERROR!!')
 		print(e)
 
-
 def BS_Fiber_Ainfo(info):
 	try:
+		listBSInfo = []
 		c = connect.Connector('gdcwb','123456Qw!2')
-		info['A_WG_IP'] = re.sub(r'3([\.\d+]{3})', r'4\1', info['A_YW_IP'])
-		child, loginMode = c.connectIPRAN(info['A_WG_IP'])
+		child, loginMode = c.connectIPRAN(list(info.keys())[0])
 		if loginMode == '3A' or loginMode == 'Local':
 			child.send('en' + '\r')
-			result_loopback_A = cmd.cmd_show(child,'show running-config interface loopback1023','More','#')
-			result_interface = cmd.cmd_show(child,'show mpls l2-circuit '+ info['PW'] +'\r','More','#')
-			while True:
-				result_loopback_A = re.search(r'(\d+\.){3}\d+',result_loopback_A)
-				result_interface = re.search(r'GE\d+/\d+/\d+\.\d+',result_interface)
-				if result_loopback_A and result_interface:
-					result_loopback_A = result_loopback_A.group()
-					result_interface = result_interface.group()
-					info['A_PORT'] = result_interface
-					break
+			for k,v in info.items():
+				for item in v:
+					tmp = {}
+					tmp['A_WG_IP'] = k
+					tmp['BS_IP'] = item['BS_IP']
+					tmp['A_YW_IP'] = item['A_YW_IP']
+					tmp['PW'] = item['PW']
+					tmp['B_IP'] = item['B_IP']
+					tmp['BS_MAC'] = item['BS_MAC']
+					result_loopback_A = cmd.cmd_show(child,'show running-config interface loopback1023','More','#')
+					result_interface = cmd.cmd_show(child,'show mpls l2-circuit '+ tmp['PW'] +'\r','More','#')
+					while True:
+						result_loopback_A = re.search(r'(\d+\.){3}\d+',result_loopback_A)
+						result_interface = re.search(r'GE\d+/\d+/\d+\.\d+',result_interface)
+						if result_loopback_A and result_interface:
+							result_loopback_A = result_loopback_A.group()
+							result_interface = result_interface.group()
+							tmp['A_PORT'] = result_interface
+							break
+					listBSInfo.append(tmp)
+			# print(listBSInfo)
 		else:
-			print(info['A_WG_IP'] + ' can\'t login.')
-			info['A_PORT'] = ''
+			print(list(info.keys())[0] + ' can\'t login.')
+			for k,v in info.items():
+				for item in v:
+					tmp = {}
+					tmp['A_WG_IP'] = k
+					tmp['BS_IP'] = item['BS_IP']
+					tmp['A_YW_IP'] = item['A_YW_IP']
+					tmp['PW'] = item['PW']
+					tmp['B_IP'] = item['B_IP']
+					tmp['BS_MAC'] = item['BS_MAC']
+					tmp['A_PORT'] = ''
+					listBSInfo.append(tmp)
 		child.close(force=True)
 	except Exception as e:
-		info['A_PORT'] = ''
-		print(info['A_WG_IP'] + ' ERROR!!')
+		listBSInfo = []
+		print(list(info.keys())[0] + ' ERROR!!')
 		print(e)
 	finally:
-		return info
+		return listBSInfo
 
 try:
 	loginIp = rw.ReadFromTxt('host.txt')
@@ -196,10 +228,10 @@ try:
 	for ip in loginIp:
 		myQueue.put(ip)
 
-	listResult = []
+	resultDict = {}
 	lock = threading.Lock()
 	threads = []
-	for i in range(3):
+	for i in range(50):
 		threads.append(BS_Fiber_Thread(lock,"thread-" + str(i)))
 	for t in threads:
 		t.start()
@@ -207,11 +239,13 @@ try:
 		t.join()
 
 	BsQueue = queue.Queue()
-	for d in listResult:
-		BsQueue.put(d)
+	for k,v in resultDict.items():
+		tmpDict = {}
+		tmpDict[k] = v
+		BsQueue.put(tmpDict)
 
 	listResultFinal = []
-	lock = threading.Lock()
+	# lock = threading.Lock()
 	threads = []
 	for i in range(3):
 		threads.append(BS_Fiber_Ainfo_Thread(lock,"thread-" + str(i)))

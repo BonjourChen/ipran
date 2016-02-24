@@ -73,11 +73,12 @@ def AAAtest(ip):
 		if loginMode == 'Failed' or loginMode == 'No':
 			print(ip + ' Login Failed')
 		return listResult
+		child.close(force=True)
 	except Exception as e:
 			print(e)
 
 try:
-	loginIp = rw.ReadFromTxt('err.txt')
+	loginIp = rw.ReadFromTxt('host.txt')
 	myQueue = queue.Queue()
 	for ip in loginIp:
 		myQueue.put(ip)

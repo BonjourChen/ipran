@@ -57,7 +57,3 @@ def cmd_telnet(child,ip):
 	else:
 		loginMode = 'No'
 		return child,loginMode
-
-
-
-		

@@ -29,7 +29,7 @@ class Connector(object):
 			child.send(self.Username + '\r')
 			index = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT],30)
 			child.send(self.Password + '\r')
-			index = child.expect([loginprompt,'(?i)error','No username', pexpect.EOF, pexpect.TIMEOUT],30)
+			index = child.expect([loginprompt,'(?i)error','No username','Bad passwords', pexpect.EOF, pexpect.TIMEOUT],30)
 			if index == 0: 
 				loginInfo = child.before
 				loginMode = '3A'
@@ -43,7 +43,7 @@ class Connector(object):
 					child.send('noc189\r')
 					index_1 = child.expect(["[pP]assword", pexpect.EOF, pexpect.TIMEOUT],30)
 					child.send('1qaz#EDC\r')
-					index_1 = child.expect([loginprompt,'(?i)error','No username', pexpect.EOF, pexpect.TIMEOUT],30)
+					index_1 = child.expect([loginprompt,'(?i)error','No username','Bad passwords', pexpect.EOF, pexpect.TIMEOUT],30)
 					if index_1 == 0:
 						loginInfo = child.before
 						loginMode = 'Local'
