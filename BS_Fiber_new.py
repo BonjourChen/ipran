@@ -33,16 +33,19 @@ class BS_Fiber_Thread(threading.Thread):
 					break
 				print (self.name, hostIp)
 				result = BS_Fiber(hostIp)
-				self.lock.acquire()
-				for k,v in result.items():
-					if k in resultDict.keys():
-						resultDict[k] += v
-					else:
-						resultDict[k] = v
-				self.lock.release()
+				while self.lock.acquire(10):
+					for k,v in result.items():
+						if k in resultDict.keys():
+							resultDict[k] += v
+						else:
+							resultDict[k] = v
+					self.lock.release()
+					break
 			except queue.Empty:
 				print(self.name + ' finish at %s' %time.ctime())
 				break
+			except Exception as e:
+				print(e)
 
 class BS_Fiber_Ainfo_Thread(threading.Thread):
 	"""docstring for BS_Fiber_Ainfo_Thread"""
@@ -56,9 +59,8 @@ class BS_Fiber_Ainfo_Thread(threading.Thread):
 		while True:
 			try:
 				info = BsQueue.get(block = False)
-				print (self.name, info)
+				print (self.name, list(info.keys())[0])
 				result = BS_Fiber_Ainfo(info)
-				# print (self.name, info)
 				self.lock.acquire()
 				listResultFinal += result
 				self.lock.release()
@@ -67,9 +69,9 @@ class BS_Fiber_Ainfo_Thread(threading.Thread):
 				break
 
 def BS_Fiber(ip):
+	dictInfo = {}
 	try:
-		dictInfo = {}
-		c = connect.Connector('gdcwb','123456Qw!2')
+		c = connect.Connector('gdcwb','123456Qw!234')
 		child,loginMode = c.connectIPRAN(ip)
 		if loginMode == 'Local' or loginMode == '3A':
 			result_cdma_ran = cmd.cmd_show(child, 'show arp all include CDMA-RAN', 'More', '#')
@@ -113,7 +115,7 @@ def BS_Fiber(ip):
 						info['B_IP'] = ip
 						listBSInfo.append(info)
 						tmpDictInfo[A_WG_IP] = listBSInfo
-						print(tmpDictInfo)
+						# print(tmpDictInfo)
 						for k,v in tmpDictInfo.items():
 							if k in dictInfo.keys():
 								dictInfo[k] += v
@@ -123,11 +125,13 @@ def BS_Fiber(ip):
 		else:
 			print(ip + ' can\'t login.')
 			rw.WriteToTxt('errIP.txt',ip+'\r')
-			child.close()
+			child.close(force=True)
 	except Exception as e:
 		print(ip + ' ERROR!!')
 		print(e)
+		child.close(force=True)
 	finally:
+		print(ip + ' Done!')
 		return dictInfo
 
 def BS_Fiber_Ainfo_bak(info):
@@ -174,9 +178,9 @@ def BS_Fiber_Ainfo_bak(info):
 		print(e)
 
 def BS_Fiber_Ainfo(info):
+	listBSInfo = []
 	try:
-		listBSInfo = []
-		c = connect.Connector('gdcwb','123456Qw!2')
+		c = connect.Connector('gdcwb','123456Qw!234')
 		child, loginMode = c.connectIPRAN(list(info.keys())[0])
 		if loginMode == '3A' or loginMode == 'Local':
 			child.send('en' + '\r')
@@ -214,12 +218,13 @@ def BS_Fiber_Ainfo(info):
 					tmp['BS_MAC'] = item['BS_MAC']
 					tmp['A_PORT'] = ''
 					listBSInfo.append(tmp)
-		child.close(force=True)
+		# child.close(force=True)
 	except Exception as e:
 		listBSInfo = []
 		print(list(info.keys())[0] + ' ERROR!!')
 		print(e)
 	finally:
+		child.close(force=True)
 		return listBSInfo
 
 try:
@@ -230,6 +235,7 @@ try:
 
 	resultDict = {}
 	lock = threading.Lock()
+
 	threads = []
 	for i in range(50):
 		threads.append(BS_Fiber_Thread(lock,"thread-" + str(i)))
@@ -238,7 +244,7 @@ try:
 	for t in threads:
 		t.join()
 
-	print('-------------------------------------------------------------')
+	print('-----------------------------------------------------------------------')
 
 	BsQueue = queue.Queue()
 	for k,v in resultDict.items():
@@ -247,10 +253,10 @@ try:
 		BsQueue.put(tmpDict)
 
 	listResultFinal = []
-	# lock = threading.Lock()
+	lock1 = threading.Lock()
 	threads = []
-	for i in range(3):
-		threads.append(BS_Fiber_Ainfo_Thread(lock,"thread-" + str(i)))
+	for i in range(2):
+		threads.append(BS_Fiber_Ainfo_Thread(lock1,"thread-" + str(i)))
 	for t in threads:
 		t.start()
 	for t in threads:
