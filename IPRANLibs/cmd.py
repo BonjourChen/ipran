@@ -4,13 +4,13 @@ import os
 import sys
 import re
 
-def cmd_show(child,command,more,stop,timeout=3):
+def cmd_show(child,command,more,stop,timeout=30):
 	child.send(command + '\r')
 	show_result = ''
-	index = child.expect([command,pexpect.TIMEOUT])
+	index = child.expect([command, pexpect.EOF, pexpect.TIMEOUT],timeout)
 	if index == 0:
 		while True:
-			index_1 = child.expect([more,stop,pexpect.TIMEOUT])
+			index_1 = child.expect([more,stop,pexpect.EOF,pexpect.TIMEOUT],timeout)
 			show_result += str(child.before, encoding = 'utf-8')
 			if index_1 == 0:
 				child.send(' ')
