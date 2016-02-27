@@ -351,6 +351,13 @@ def BS_Fiber_Ainfo(info):
 						tmp['BS_MAC'] = item['BS_MAC']
 						result_interface = cmd.cmd_show(child,'show mpls l2-circuit '+ tmp['PW'] +'\r','More','#',60)
 						result_interface = str(result_interface)
+						while True:
+							if re.search(r'server is down',result_interface):
+								result_interface = cmd.cmd_show(child,'show mpls l2-circuit '+ tmp['PW'] +'\r','More','#',60)
+								result_interface = str(result_interface)
+							else:
+								break
+						# print(k + 'out:' + result_interface)
 						if result_interface.strip() == '':
 							break
 						else:
@@ -359,6 +366,7 @@ def BS_Fiber_Ainfo(info):
 								if result_interface:
 									result_interface = result_interface.group()
 									tmp['A_PORT'] = result_interface
+									# print(k + 'out:' + result_interface)
 									break
 							listBSInfo.append(tmp)
 							exitFlag = 0
@@ -410,12 +418,14 @@ try:
 	lock = threading.Lock()
 
 	threads = []
-	for i in range(30):
+	for i in range(40):
 		threads.append(BS_Fiber_Thread(lock,"thread-" + str(i)))
 	for t in threads:
 		t.start()
 	for t in threads:
 		t.join()
+
+	# print(resultDict)
 
 	print('-----------------------------------------------------------------------')
 
