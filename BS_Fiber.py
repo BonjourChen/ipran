@@ -86,13 +86,11 @@ def BS_Fiber(ip):
 
 			if loginMode == 'Local' or loginMode == '3A':
 				result_cdma_ran = cmd.cmd_show(child, 'show arp all include CDMA-RAN', 'More', '#')
-				# print(result_cdma_ran)
 				cdma_ran_Line = re.findall(r'(virtual.*)/\-',result_cdma_ran)
 				countBS = len(cdma_ran_Line)
 				if countBS == 0:
 					print(ip + ' has no basic station.')
 					exitFlag = 0
-					# rw.WriteToTxt('errIP.txt',ip+' has no basic station.\r')
 					child.close(force=True)
 				else:
 					for line in range(countBS):
@@ -197,7 +195,6 @@ def BS_Fiber_Ainfo(info):
 								result_interface = str(result_interface)
 							else:
 								break
-						# print(k + 'out:' + result_interface)
 						if result_interface.strip() == '':
 							break
 						else:
@@ -264,8 +261,6 @@ try:
 		t.start()
 	for t in threads:
 		t.join()
-
-	# print(resultDict)
 
 	print('-----------------------------------------------------------------------')
 
