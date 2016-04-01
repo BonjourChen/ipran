@@ -69,19 +69,25 @@ def HW_B(child, listResult):
 	listResult.append(str(nXPeer))
 
 	if '-D-' in listResult[1]:
-		if nMPeer >= 1 and nDPeer >= 1:
+		if (nDPeer == 1 and nMPeer == 1) or (nDPeer == 1 and nXPeer == 1):
+			listResult.append('KOU')
+		elif nMPeer >= 2 or nXPeer >= 2:
 			listResult.append('OK')
-		elif nXPeer >= 1 and nDPeer >= 1:
+		elif (nDPeer >= 1 and nMPeer >= 1) or (nDPeer >=1 and nXPeer >= 1):
 			listResult.append('OK')
-		elif (nMPeer >= 1 and nDPeer < 1) or (nXPeer >= 1 and nDPeer < 1):
-			listResult.append('Only uT')
-		elif (nDPeer >= 1 and nMPeer < 1) or (nDPeer >= 1 and nXPeer < 1):
+		elif nDPeer >=1 and nMPeer < 1:
 			listResult.append('Only pT')
+		elif nDPeer >= 1 and nXPeer < 1:
+			listResult.append('Only pT')
+		elif nDPeer < 1 and nMPeer >= 1:
+			listResult.append('Only uT')
+		elif nDPeer < 1 and nXPeer >= 1:
+			listResult.append('Only uT')
 		else:
 			listResult.append('unknown')
 	else:
 		listResult.append('unknown')
-	return listResult
+	return listResultstResult
 	
 def ZTE_B(child, listResult):
 	result_isis = cmd.cmd_show(child,'show isis adjacency','More','#')
@@ -99,19 +105,25 @@ def ZTE_B(child, listResult):
 	listResult.append(str(nXPeer))
 
 	if '-D-' in listResult[1]:
-		if nMPeer >= 1 and nDPeer >= 1:
+		if (nDPeer == 1 and nMPeer == 1) or (nDPeer == 1 and nXPeer == 1):
+			listResult.append('KOU')
+		elif nMPeer >= 2 or nXPeer >= 2:
 			listResult.append('OK')
-		elif nXPeer >= 1 and nDPeer >= 1:
+		elif (nDPeer >= 1 and nMPeer >= 1) or (nDPeer >=1 and nXPeer >= 1):
 			listResult.append('OK')
-		elif (nMPeer >= 1 and nDPeer < 1) or (nXPeer >= 1 and nDPeer < 1):
-			listResult.append('Only uT')
-		elif (nDPeer >= 1 and nMPeer < 1) or (nDPeer >= 1 and nXPeer < 1):
+		elif nDPeer >=1 and nMPeer < 1:
 			listResult.append('Only pT')
+		elif nDPeer >= 1 and nXPeer < 1:
+			listResult.append('Only pT')
+		elif nDPeer < 1 and nMPeer >= 1:
+			listResult.append('Only uT')
+		elif nDPeer < 1 and nXPeer >= 1:
+			listResult.append('Only uT')
 		else:
 			listResult.append('unknown')
 	else:
 		listResult.append('unknown')
-	return listResult
+	return listResultstResult
 
 def Fiber_B(child, listResult):
 	result_isis = cmd.cmd_show(child,'show clns is-neighbors','More','#')
@@ -129,24 +141,30 @@ def Fiber_B(child, listResult):
 	listResult.append(str(nXPeer))
 
 	if '-D-' in listResult[1]:
-		if nMPeer >= 1 and nDPeer >= 1:
+		if (nDPeer == 1 and nMPeer == 1) or (nDPeer == 1 and nXPeer == 1):
+			listResult.append('KOU')
+		elif nMPeer >= 2 or nXPeer >= 2:
 			listResult.append('OK')
-		elif nXPeer >= 1 and nDPeer >= 1:
+		elif (nDPeer >= 1 and nMPeer >= 1) or (nDPeer >=1 and nXPeer >= 1):
 			listResult.append('OK')
-		elif (nMPeer >= 1 and nDPeer < 1) or (nXPeer >= 1 and nDPeer < 1):
-			listResult.append('Only uT')
-		elif (nDPeer >= 1 and nMPeer < 1) or (nDPeer >= 1 and nXPeer < 1):
+		elif nDPeer >=1 and nMPeer < 1:
 			listResult.append('Only pT')
+		elif nDPeer >= 1 and nXPeer < 1:
+			listResult.append('Only pT')
+		elif nDPeer < 1 and nMPeer >= 1:
+			listResult.append('Only uT')
+		elif nDPeer < 1 and nXPeer >= 1:
+			listResult.append('Only uT')
 		else:
 			listResult.append('unknown')
 	else:
 		listResult.append('unknown')
-	return listResult
+	return listResultstResult
 
 def bd_result(ip):
 	listResult = []
 	try:
-		c = connect.Connector('gdcwb','123456Qw!2')
+		c = connect.Connector('gdcwb','123456Qw!234')
 		child, loginMode = c.connectIPRAN(ip)
 		if loginMode == '3A':
 			listResult.append('3A')
