@@ -73,7 +73,7 @@ def HW_B(child, listResult):
 			listResult.append('OK')
 		elif nXPeer >= 1 and nDPeer >= 1:
 			listResult.append('OK')
-		elif nMPeer >= 1 and nDPeer < 1:
+		elif (nMPeer >= 1 and nDPeer < 1) or (nXPeer >= 1 and nDPeer < 1):
 			listResult.append('Only uT')
 		elif (nDPeer >= 1 and nMPeer < 1) or (nDPeer >= 1 and nXPeer < 1):
 			listResult.append('Only pT')
@@ -103,7 +103,7 @@ def ZTE_B(child, listResult):
 			listResult.append('OK')
 		elif nXPeer >= 1 and nDPeer >= 1:
 			listResult.append('OK')
-		elif nMPeer >= 1 and nDPeer < 1:
+		elif (nMPeer >= 1 and nDPeer < 1) or (nXPeer >= 1 and nDPeer < 1):
 			listResult.append('Only uT')
 		elif (nDPeer >= 1 and nMPeer < 1) or (nDPeer >= 1 and nXPeer < 1):
 			listResult.append('Only pT')
@@ -133,7 +133,7 @@ def Fiber_B(child, listResult):
 			listResult.append('OK')
 		elif nXPeer >= 1 and nDPeer >= 1:
 			listResult.append('OK')
-		elif nMPeer >= 1 and nDPeer < 1:
+		elif (nMPeer >= 1 and nDPeer < 1) or (nXPeer >= 1 and nDPeer < 1):
 			listResult.append('Only uT')
 		elif (nDPeer >= 1 and nMPeer < 1) or (nDPeer >= 1 and nXPeer < 1):
 			listResult.append('Only pT')
